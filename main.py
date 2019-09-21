@@ -19,5 +19,5 @@ NPM=input()
 crot=kepo.generateURL(NPM)
 
 img = qrcode.make(crot)
-img.save("NPM.jpg")
+img.save(NPM+".jpg")
 print("File QrCode Telah Dibuat")
