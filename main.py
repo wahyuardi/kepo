@@ -7,6 +7,17 @@ Created on Sat Sep 21 20:54:32 2019
 """
 
 import kepo
+import qrcode
+
+
+
+
 kepo = kepo.Kepo()
+print("NPM : ")
+NPM=input()
 
+crot=kepo.generateURL(NPM)
 
+img = qrcode.make(crot)
+img.save("qrcode.jpg")
+print("File QrCode Telah Dibuat")
