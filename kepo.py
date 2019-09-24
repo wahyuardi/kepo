@@ -37,15 +37,15 @@ class Kepo(object):
 		cp = obj.encrypt(msg)
 		return cp.hex()
     
-	def generateURL(self,NPM):
-		if NPM[2:3] == '8':
+	def generateURL(self,NPM, PROYEK):
+		if PROYEK == '2':
 			active_url = config.active_url8
 		else:
 			active_url = config.active_url7
 		return active_url+self.urlEncode16(self.keyuri+NPM)
 		
-	def adaFoto(self,NPM):
-		if NPM[2:3] == '8':
+	def adaFoto(self,NPM, PROYEK):
+		if PROYEK == '2':
 			cdn = config.cdn8
 		else:
 			cdn = config.cdn7

@@ -13,8 +13,10 @@ import qrcode
 kepo = kepo.Kepo()
 print("NPM : ")
 NPM=input()
-if kepo.adaFoto(NPM):
-	crot=kepo.generateURL(NPM)
+print("Proyek : ")
+PROYEK=input()
+if kepo.adaFoto(NPM, PROYEK):
+	crot=kepo.generateURL(NPM, PROYEK)
 	img = qrcode.make(crot)
 	img.save("./"+NPM+".png")
 	print("File QrCode Telah Dibuat")
