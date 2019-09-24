@@ -7,12 +7,13 @@ created by Rolly Maulana Awangga
 import config
 import random
 from Crypto.Cipher import AES
+import requests
 
 class Kepo(object):
 	def __init__(self):
 		self.key = config.key
 		self.iv = config.iv
-		self.active_url = config.active_url
+		#self.active_url = config.active_url
 		self.keyuri = config.keyuri
 
 	def random(self,ln):
@@ -37,5 +38,21 @@ class Kepo(object):
 		return cp.hex()
     
 	def generateURL(self,NPM):
-		return self.active_url+self.urlEncode16(self.keyuri+NPM)
+		if NPM[2:3] == '8':
+			active_url = config.active_url8
+		else:
+			active_url = config.active_url7
+		return active_url+self.urlEncode16(self.keyuri+NPM)
+		
+	def adaFoto(self,NPM):
+		if NPM[2:3] == '8':
+			cdn = config.cdn8
+		else:
+			cdn = config.cdn7
+		f = requests.get(cdn+NPM+'.jpg')
+		if f.text[:3] == '404':
+			res = False
+		else:
+			res = True
+		return res
 

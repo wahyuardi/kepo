@@ -6,7 +6,8 @@ set parameter
 ### Menus
 keyuri = "key"
 tokenuri = "token"
-active_url = "https://batagor.herokuapp.com/" 
+active_url8 = "https://cucunguk.herokuapp.com/" 
+active_url7 = "https://proyek3d4ti.herokuapp.com/" 
 
 
 ### Security module
