@@ -17,6 +17,9 @@ class Kepo(object):
 		self.active_url7 = "https://proyek3d4ti.herokuapp.com/"
 		self.cdn8 = "https://raw.githubusercontent.com/D4TI/2018/master/kecil/"
 		self.cdn7 = "https://raw.githubusercontent.com/D4TI/2017/master/kecil/"
+		self.ekscdn = ".jpg"
+		self.osjur = "https://raw.githubusercontent.com/himatifpoltekpos/sertifikat-morris-proyek/master/20"
+		self.eksosjur = ".png"
 
 	def random(self,ln):
                 ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -51,10 +54,18 @@ class Kepo(object):
 			cdn = self.cdn8
 		else:
 			cdn = self.cdn7
-		f = requests.get(cdn+NPM+'.jpg')
+		f = requests.get(cdn+NPM+self.ekscdn)
 		if f.text[:3] == '404':
 			res = False
 		else:
 			res = True
 		return res
 
+	def lulusOsjur(self,NPM):
+		f = requests.get(self.osjur+NPM[1:3]+'/'+NPM+self.eksosjur)
+		if f.text[:3] == '404':
+			res = False
+		else:
+			res = True
+		return res
+        
