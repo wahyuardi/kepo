@@ -13,10 +13,10 @@ class Kepo(object):
 		self.key = "rollysuprganteng"
 		self.iv = "1234surabihaneut"
 		self.keyuri = "key"
-        self.active_url8 = "https://cucunguk.herokuapp.com/" 
-        self.active_url7 = "https://proyek3d4ti.herokuapp.com/"
-        self.cdn8 = "https://raw.githubusercontent.com/D4TI/2018/master/kecil/"
-        self.cdn7 = "https://raw.githubusercontent.com/D4TI/2017/master/kecil/"
+		self.active_url8 = "https://cucunguk.herokuapp.com/" 
+		self.active_url7 = "https://proyek3d4ti.herokuapp.com/"
+		self.cdn8 = "https://raw.githubusercontent.com/D4TI/2018/master/kecil/"
+		self.cdn7 = "https://raw.githubusercontent.com/D4TI/2017/master/kecil/"
 
 	def random(self,ln):
                 ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
