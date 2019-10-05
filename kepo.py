@@ -4,17 +4,19 @@ signapp.py
 created by Rolly Maulana Awangga
 
 """
-import config
 import random
 from Crypto.Cipher import AES
 import requests
 
 class Kepo(object):
 	def __init__(self):
-		self.key = config.key
-		self.iv = config.iv
-		#self.active_url = config.active_url
-		self.keyuri = config.keyuri
+		self.key = "rollysuprganteng"
+		self.iv = "1234surabihaneut"
+		self.keyuri = "key"
+        self.active_url8 = "https://cucunguk.herokuapp.com/" 
+        self.active_url7 = "https://proyek3d4ti.herokuapp.com/"
+        self.cdn8 = "https://raw.githubusercontent.com/D4TI/2018/master/kecil/"
+        self.cdn7 = "https://raw.githubusercontent.com/D4TI/2017/master/kecil/"
 
 	def random(self,ln):
                 ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -39,16 +41,16 @@ class Kepo(object):
     
 	def generateURL(self,NPM, PROYEK):
 		if PROYEK == '2':
-			active_url = config.active_url8
+			active_url = self.active_url8
 		else:
-			active_url = config.active_url7
+			active_url = self.active_url7
 		return active_url+self.urlEncode16(self.keyuri+NPM)
 		
 	def adaFoto(self,NPM, PROYEK):
 		if PROYEK == '2':
-			cdn = config.cdn8
+			cdn = self.cdn8
 		else:
-			cdn = config.cdn7
+			cdn = self.cdn7
 		f = requests.get(cdn+NPM+'.jpg')
 		if f.text[:3] == '404':
 			res = False
