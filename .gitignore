@@ -7,7 +7,7 @@ client_secret.json
 .DS_Store
 # Byte-compiled / optimized / DLL files
 __pycache__/
-*.py[cod]
+*.py[co]
 *$py.class
 *.jpg
 # C extensions
