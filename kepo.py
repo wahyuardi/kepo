@@ -23,6 +23,12 @@ class Kepo(object):
 		self.osjur = "https://raw.githubusercontent.com/himatifpoltekpos/sertifikat-morris-proyek/master/20"
 		self.eksosjur = ".png"
 		self.urlsiap = 'http://siap.poltekpos.ac.id/siap/besan.depan.php'
+		self.urlkick='http://siap.poltekpos.ac.id/siap/besan.otorisasi.php?error=3'
+		self.urllihatdata='http://siap.poltekpos.ac.id/siap/modul/simpati/index.php?mnux=master.mahasiswa.informasi&mdlid=62'
+		self.urlsiappersonal = 'http://siap.poltekpos.ac.id/siap/modul/simpati/index.php?mnux=master.mahasiswa.informasi.detail&inqMhsw=inqMhswPribadi'
+		self.urlubahdata='http://siap.poltekpos.ac.id/siap/modul/simpati/index.php?mnux=master.mahasiswa&mdlid=28'
+		self.urlsiaportu = 'http://siap.poltekpos.ac.id/siap/modul/simpati/index.php?mnux=master.mahasiswa.edit&mhswedt=ortu'
+		self.urllogout='http://siap.poltekpos.ac.id/siap/besan.otorisasi.php?logout=yes'
 		self.kodemtkproyek2 = ['TI43162']
 		self.kodemtkproyek3 = ['TI43233']
 
@@ -79,28 +85,70 @@ class Kepo(object):
 		self.driver.get(self.urlsiap)
 
 	def loginSiap(self,NPM,password):
+		self.driver.find_element_by_name('user_name').send_keys(NPM)
+		self.driver.find_element_by_name('user_pass').send_keys(password)
+		self.driver.find_element_by_name('login').click()
 		success = False
-		count=0
 		while success == False:
 			try:
-				self.driver.find_element_by_name('user_name').send_keys(NPM)
-				self.driver.find_element_by_name('user_pass').send_keys(password)
-				self.driver.find_element_by_name('login').click()
+				siapnpm=self.driver.find_elements_by_class_name('cap-main')[7].text
+				if siapnpm == NPM:
+					status = True
+				success = True
+			except:
+				if self.driver.current_url == self.urlkick:
+					status = False
+					success = True
+		return status
+	
+	def openProfileSiap(self):
+		success = False
+		while success == False:
+			try:
+				self.driver.get(self.urllihatdata)
+				self.driver.get(self.urlsiappersonal)
 				success = True
 			except:
 				time.sleep(5)
-				count=count+1
-				if count>5:
-					success = True
-		profile=self.getProfileSiap()
-		nama=profile[1].split(' Nama ')[1]
-		return nama
+		return success
 	
-	def getProfileSiap(self):
-		self.driver.get('http://siap.poltekpos.ac.id/siap/modul/simpati/index.php?mnux=master.mahasiswa.informasi&mdlid=62')
-		isi = self.driver.find_element_by_class_name('box').text
-		return isi.splitlines()
+	def getNamafromSiap(self):
+		self.openProfileSiap()
+		profile = self.driver.find_element_by_class_name('box').text
+		nama=profile.splitlines()[1].split(' Nama ')[1]
+		return nama
 		
+	def getHPfromSiap(self):
+		self.openProfileSiap()
+		profile = self.driver.find_elements_by_class_name('box')
+		nohp=profile[3].text.splitlines()[10].split(', ')[2]
+		return nohp
+	
+	def openProfileOrtuSiap(self):
+		success = False
+		while success == False:
+			try:
+				self.driver.get(self.urlubahdata)
+				self.driver.get(self.urlsiaportu)
+				success = True
+			except:
+				time.sleep(5)
+		return success
+	
+	def getNamaOrtufromSiap(self):
+		self.openProfileOrtuSiap()
+		profile = self.driver.find_element_by_name('NamaAyah')
+		namaayah=profile.get_attribute("value")
+		profile = self.driver.find_element_by_name('NamaIbu')
+		namaibu=profile.get_attribute("value")
+		return 'Bpk. '+namaayah+' dan Ibu '+namaibu
+		
+	def getHPOrtufromSiap(self):
+		self.openProfileOrtuSiap()
+		profile = self.driver.find_element_by_name('HandphoneOrtu')
+		nohp=profile.get_attribute("value")
+		return nohp
+	
 	def getNilaiSemester(self,semester):
 		#20182
 		opsisemester="//option[@value='"+semester+"']"
@@ -130,15 +178,21 @@ class Kepo(object):
 		return daftar
 		
 	def getNilaiMK(self, daftar,MK):
-			#kode_matkul = ['PPI1102', 'T4I222D4', 'TI43142']
-			res = [i for i in daftar if any(j in i for j in MK)]
-			return res
+		#kode_matkul = ['PPI1102', 'T4I222D4', 'TI43142']
+		res = [i for i in daftar if any(j in i for j in MK)]
+		return res
 	
 	def isLulus(self, nilai):
-			switcher= {
-					"A": True,
-					"B": True,
-					"C": True,
-					"D": True
-					}
-			return switcher.get(nilai, False)
+		switcher= {
+				"A": True,
+				"B": True,
+				"C": True,
+				"D": True
+				}
+		return switcher.get(nilai, False)
+	
+	def closeSiap(self):
+		self.driver.get(self.urllogout)
+		while self.driver.current_url != self.urlsiap:
+			time.sleep(1)
+		self.driver.close()
