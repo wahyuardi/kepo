@@ -10,14 +10,15 @@ from oauth2client.service_account import  ServiceAccountCredentials
 from Crypto.Cipher import AES
 import requests
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 import time
 from datetime import datetime
 
 
 class Kepo(object):
 	def __init__(self):
-		self.key = "rollysuprganteng"
-		self.iv = "1234surabihaneut"
+		self.key = "keynya"
+		self.iv = "ivnya"
 		self.keyuri = "key"
 		self.active_url8 = "https://cucunguk.herokuapp.com/" 
 		self.active_url7 = "https://proyek3d4ti.herokuapp.com/"
@@ -42,16 +43,11 @@ class Kepo(object):
 		"semester" : "20181"
 		}
 		self.logname = 'datamahasiswa'
-		self.client_secret = {
-		"type": "service_account",
-		"project_id": "barudak-golok",
-		"private_key_id": "asas9889",
-		}
+		self.client_secret = {}
 
 	def insertLog(self,data):
 		scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-		#creds = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', scope)
-		creds = ServiceAccountCredentials.from_json_keyfile_dict('client_secret.json', scope)
+		creds = ServiceAccountCredentials.from_json_keyfile_dict(self.client_secret, scope)
 		client = gspread.authorize(creds)
 		self.sheet = client.open(self.logname).get_worksheet(1)
 		return self.sheet.insert_row(data, 2)
@@ -63,26 +59,53 @@ class Kepo(object):
 			chars.append(random.choice(ALPHABET))
 		return "".join(chars)
 
-	def urlEncode16(self,uri):
+	def makeit16(self,uri):
 		ln = len(uri)
 		sp = 16 - ln - len(str(ln))
 		if ln>9:
 			dt = str(ln)+uri+self.random(sp)
 		else:
 			dt = "0"+str(ln)+uri+self.random(sp-1)
-		return self.encodeData16(dt)
+		return dt
 
-	def encodeData16(self,msg):
-		obj=AES.new(self.key,AES.MODE_CBC,self.iv)
-		cp = obj.encrypt(msg)
-		return cp.hex()
-    
-	def generateURL(self,NPM, PROYEK, NILAI,KET):
+	def generateURL(self, NPM, PASSWORD, PROYEK, NILAI, KET, Pembimbing):
+		lengkap=self.sudahLengkap(NPM, PASSWORD, PROYEK, NILAI, KET, Pembimbing)
+		data=self.getPersonalData(NPM,Pembimbing,100,KET)
+		if lengkap:
+			self.insertLog(data)
+			active_url=self.getURL(PROYEK)
+			uri=self.keyuri+NPM+'%'+NILAI+'%'+KET
+			msg=self.makeit16(uri)
+			obj=AES.new(self.key,AES.MODE_CBC,self.iv)
+			cp = obj.encrypt(msg)
+			return active_url+cp.hex()
+		else:
+			msg='Administrasi Kurang Lengkap'
+			print(msg)
+			return ''
+	
+	def sudahLengkap(self, NPM, PASSWORD, PROYEK, NILAI, KET, Pembimbing):
+		adafoto=self.adaFoto(NPM,PROYEK)
+		if not adafoto:
+			print('Foto Diri Belum Pull Request')
+		adaosjur=self.lulusOsjur(NPM)
+		if not adaosjur:
+			print('Sertifikat Morris Belum di Pull Request')
+		print('Harap ditunggu, sedang dilakukan proses pengecekan nilai prasyarat.... (1-5 menit)')
+		lulusmatakuliah=self.lulusMataKuliah(NPM,PASSWORD,PROYEK)
+		if not lulusmatakuliah:
+			print('Matakuliah prasyarat belum lulus')
+		if adafoto and adaosjur and lulusmatakuliah:
+			return True
+		else:
+			return False
+	
+	def getURL(self,PROYEK):
 		if PROYEK == '2':
 			active_url = self.active_url8
 		else:
 			active_url = self.active_url7
-		return active_url+self.urlEncode16(self.keyuri+NPM+'%'+NILAI+'%'+KET)
+		return active_url
 		
 	def adaFoto(self,NPM, PROYEK):
 		if PROYEK == '2':
@@ -133,7 +156,9 @@ class Kepo(object):
 		return data
 		
 	def openSiap(self):
-		self.driver = webdriver.Chrome()
+		options = Options()
+		options.headless = True
+		self.driver = webdriver.Chrome(chrome_options=options)
 		self.driver.get(self.urlsiap)
 
 	def loginSiap(self,NPM,password):
