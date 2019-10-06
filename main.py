@@ -10,15 +10,23 @@ import kepo
 import qrcode
 
 
-kepo = kepo.Kepo()
+saya = kepo.Kepo()
 print("NPM : ")
 NPM=input()
 print("Proyek : ")
 PROYEK=input()
-if kepo.adaFoto(NPM, PROYEK):
-	crot=kepo.generateURL(NPM, PROYEK)
+print("Password SIAP : ")
+PASSWORD=input()
+print("Kode Calon Pembimbing/Pembimbing : ")
+Pembimbing=input()
+print("Progres yang dilaporkan : ")
+Bimbingan=input()
+print("Nilai : ")
+Nilai=input()
+
+
+crot=saya.generateURL(NPM, PASSWORD, PROYEK, Nilai, Bimbingan, Pembimbing)
+if crot != '':
 	img = qrcode.make(crot)
 	img.save("./"+NPM+".png")
 	print("File QrCode Telah Dibuat")
-else:
-	print("Upload Foto Dulu Coy")
