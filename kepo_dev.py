@@ -158,7 +158,7 @@ class Kepo(object):
 	def openSiap(self):
 		options = Options()
 		options.headless = True
-		self.driver = webdriver.Chrome(chrome_options=options)
+		self.driver = webdriver.Chrome(options=options)
 		self.driver.get(self.urlsiap)
 
 	def loginSiap(self,NPM,password):
