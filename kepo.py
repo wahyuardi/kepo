@@ -5,10 +5,14 @@ created by Rolly Maulana Awangga
 
 """
 import random
+import gspread
+from oauth2client.service_account import  ServiceAccountCredentials
 from Crypto.Cipher import AES
 import requests
 from selenium import webdriver
 import time
+from datetime import datetime
+
 
 class Kepo(object):
 	def __init__(self):
@@ -29,9 +33,29 @@ class Kepo(object):
 		self.urlubahdata='http://siap.poltekpos.ac.id/siap/modul/simpati/index.php?mnux=master.mahasiswa&mdlid=28'
 		self.urlsiaportu = 'http://siap.poltekpos.ac.id/siap/modul/simpati/index.php?mnux=master.mahasiswa.edit&mhswedt=ortu'
 		self.urllogout='http://siap.poltekpos.ac.id/siap/besan.otorisasi.php?logout=yes'
-		self.kodemtkproyek2 = ['TI43162']
-		self.kodemtkproyek3 = ['TI43233']
+		self.matakuliah2 = {
+		"kode":"TI43162",
+		"semester" : "20182"
+		}
+		self.matakuliah3 = {
+		"kode":"TI43233",
+		"semester" : "20181"
+		}
+		self.logname = 'datamahasiswa'
+		self.client_secret = {
+		"type": "service_account",
+		"project_id": "barudak-golok",
+		"private_key_id": "asas9889",
+		}
 
+	def insertLog(self,data):
+		scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+		#creds = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', scope)
+		creds = ServiceAccountCredentials.from_json_keyfile_dict('client_secret.json', scope)
+		client = gspread.authorize(creds)
+		self.sheet = client.open(self.logname).get_worksheet(1)
+		return self.sheet.insert_row(data, 2)
+		
 	def random(self,ln):
 		ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 		chars=[]
@@ -80,6 +104,34 @@ class Kepo(object):
 			res = True
 		return res
 
+	def lulusMataKuliah(self, NPM,password,PROYEK):
+		if PROYEK == '2':
+			matakuliah = self.matakuliah2
+		else:
+			matakuliah = self.matakuliah3
+		self.openSiap()
+		self.loginSiap(NPM,password)
+		alllistnilai=self.getNilaiSemester(matakuliah['semester'])
+		nilai=self.getNilaiMK(alllistnilai,matakuliah['kode'])
+		print('Nilai : '+nilai)
+		kelulusan = self.isLulus(nilai)
+		return kelulusan
+		
+	def getPersonalData(self, NPM, Pembimbing,Nilai, Bimbingan):
+		data=[]
+		now = datetime.now()
+		data.append(now.strftime("%d/%m/%Y %H:%M:%S"))
+		data.append(NPM)
+		data.append(self.getNamafromSiap())
+		data.append(Pembimbing)
+		data.append(self.getHPfromSiap())
+		data.append(self.getNamaOrtufromSiap())
+		data.append(self.getHPOrtufromSiap())
+		data.append(Nilai)
+		data.append(Bimbingan)
+		self.closeSiap()
+		return data
+		
 	def openSiap(self):
 		self.driver = webdriver.Chrome()
 		self.driver.get(self.urlsiap)
@@ -179,7 +231,9 @@ class Kepo(object):
 		
 	def getNilaiMK(self, daftar,MK):
 		#kode_matkul = ['PPI1102', 'T4I222D4', 'TI43142']
-		res = [i for i in daftar if any(j in i for j in MK)]
+		for i in daftar:
+			if i[0] == MK:
+				res = i[1]
 		return res
 	
 	def isLulus(self, nilai):
