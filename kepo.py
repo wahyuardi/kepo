@@ -7,6 +7,8 @@ created by Rolly Maulana Awangga
 import random
 from Crypto.Cipher import AES
 import requests
+from selenium import webdriver
+import time
 
 class Kepo(object):
 	def __init__(self):
@@ -20,13 +22,16 @@ class Kepo(object):
 		self.ekscdn = ".jpg"
 		self.osjur = "https://raw.githubusercontent.com/himatifpoltekpos/sertifikat-morris-proyek/master/20"
 		self.eksosjur = ".png"
+		self.urlsiap = 'http://siap.poltekpos.ac.id/siap/besan.depan.php'
+		self.kodemtkproyek2 = ['TI43162']
+		self.kodemtkproyek3 = ['TI43233']
 
 	def random(self,ln):
-                ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                chars=[]
-                for i in range(ln):
-                        chars.append(random.choice(ALPHABET))
-                return "".join(chars)
+		ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		chars=[]
+		for i in range(ln):
+			chars.append(random.choice(ALPHABET))
+		return "".join(chars)
 
 	def urlEncode16(self,uri):
 		ln = len(uri)
@@ -68,4 +73,72 @@ class Kepo(object):
 		else:
 			res = True
 		return res
-        
+
+	def openSiap(self):
+		self.driver = webdriver.Chrome()
+		self.driver.get(self.urlsiap)
+
+	def loginSiap(self,NPM,password):
+		success = False
+		count=0
+		while success == False:
+			try:
+				self.driver.find_element_by_name('user_name').send_keys(NPM)
+				self.driver.find_element_by_name('user_pass').send_keys(password)
+				self.driver.find_element_by_name('login').click()
+				success = True
+			except:
+				time.sleep(5)
+				count=count+1
+				if count>5:
+					success = True
+		profile=self.getProfileSiap()
+		nama=profile[1].split(' Nama ')[1]
+		return nama
+	
+	def getProfileSiap(self):
+		self.driver.get('http://siap.poltekpos.ac.id/siap/modul/simpati/index.php?mnux=master.mahasiswa.informasi&mdlid=62')
+		isi = self.driver.find_element_by_class_name('box').text
+		return isi.splitlines()
+		
+	def getNilaiSemester(self,semester):
+		#20182
+		opsisemester="//option[@value='"+semester+"']"
+		success = False
+		count=0
+		while success == False:
+			try:
+				#self.driver.find_element_by_link_text("Nilai Mahasiswa").click()
+				self.driver.get("http://siap.poltekpos.ac.id/siap/modul/simpati/index.php?mnux=nilai.mahasiswa&mdlid=43")
+				self.driver.find_element_by_xpath(opsisemester).click()
+				self.driver.find_element_by_xpath("//input[@value='Cari' and @name='Cari']").click()
+				tabel = self.driver.find_elements_by_xpath("//table[@class='box' and @align='left']/tbody/tr")
+				daftar = []
+				for i in tabel:
+					string = i.text[2:10].strip()+","+i.text[-12:-11]
+					daftar.append(string.split(','))
+				daftar.remove(daftar[1])
+				daftar.remove(daftar[0])
+				success = True
+			except:
+				print('Data Tidak Ditemukan')
+				time.sleep(5)
+				count=count+1
+				if count>5:
+					success = True
+					daftar=[]
+		return daftar
+		
+	def getNilaiMK(self, daftar,MK):
+			#kode_matkul = ['PPI1102', 'T4I222D4', 'TI43142']
+			res = [i for i in daftar if any(j in i for j in MK)]
+			return res
+	
+	def isLulus(self, nilai):
+			switcher= {
+					"A": True,
+					"B": True,
+					"C": True,
+					"D": True
+					}
+			return switcher.get(nilai, False)
