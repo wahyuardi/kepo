@@ -20,8 +20,8 @@ class Kepo(object):
 		self.key = "keynya"
 		self.iv = "ivnya"
 		self.keyuri = "key"
-		self.active_url8 = "https://cucunguk.herokuapp.com/" 
-		self.active_url7 = "https://proyek3d4ti.herokuapp.com/"
+		self.active_url8 = "https://cobahayo.herokuapp.com/" 
+		self.active_url7 = "https://proyek3d4tiv2.herokuapp.com/"
 		self.cdn8 = "https://raw.githubusercontent.com/D4TI/2018/master/kecil/"
 		self.cdn7 = "https://raw.githubusercontent.com/D4TI/2017/master/kecil/"
 		self.ekscdn = ".jpg"
@@ -158,7 +158,7 @@ class Kepo(object):
 	def openSiap(self):
 		options = Options()
 		options.headless = True
-		self.driver = webdriver.Chrome(chrome_options=options)
+		self.driver = webdriver.Chrome(options=options)
 		self.driver.get(self.urlsiap)
 
 	def loginSiap(self,NPM,password):
