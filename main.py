@@ -8,6 +8,7 @@ Created on Sat Sep 21 20:54:32 2019
 
 import kepo
 import qrcode
+#import getpass
 
 
 saya = kepo.Kepo()
@@ -17,6 +18,7 @@ print("Proyek : ")
 PROYEK=input()
 print("Password SIAP : ")
 PASSWORD=input()
+#PASSWORD = getpass.getpass('Password SIAP : ')
 print("Kode Calon Pembimbing/Pembimbing : ")
 Pembimbing=input()
 print("Progres yang dilaporkan : ")
