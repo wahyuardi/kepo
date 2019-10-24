@@ -15,8 +15,8 @@ python main.py
 ```
 
 ## For Admin
-1. Rename kepo\_dev.py into kepo.py
-2. Please ask for key, iv and client\_secret and set into kepo.py
+1. Asf for config.py file
+2. Please move for key, iv and client\_secret and set into kepo.py from config.py
 3. Make sure you have install cython and gcc or visual studio
 4. run compile.command or compile.bat
 5. push your compile result to repo
