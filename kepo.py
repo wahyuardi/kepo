@@ -9,6 +9,7 @@ import gspread
 from oauth2client.service_account import  ServiceAccountCredentials
 from Crypto.Cipher import AES
 import requests
+import json
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import time
@@ -47,6 +48,17 @@ class Kepo(object):
 		self.logname = 'datamahasiswa'
 		self.client_secret = config.client_secret
 
+	def cukupIssues(self,username,reponame,pertemuan):
+		urlgithub=self.urlgithub.replace('USERNAME',username)
+		urlgithub=urlgithub.replace('REPONAME',reponame)
+		response = requests.get(urlgithub)
+		json_data = json.loads(response.text)
+		jumlah=len(json_data)//10
+		if jumlah >= pertemuan:
+			return True
+		else:
+			return False
+		
 	def insertLog(self,data):
 		scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
 		creds = ServiceAccountCredentials.from_json_keyfile_dict(self.client_secret, scope)
@@ -72,7 +84,7 @@ class Kepo(object):
 			dt = "0"+str(ln)+uri+self.random(sp-1)
 		return dt
 
-	def generateURL(self, NPM, PASSWORD, PROYEK, NILAI, KET, Pembimbing):
+	def generateURL(self, NPM, PASSWORD, PROYEK, NILAI, KET, Pembimbing,userrepo,namarepo,pertemuan):
 		lengkap=self.sudahLengkap(NPM, PASSWORD, PROYEK, NILAI, KET, Pembimbing)
 		data=self.getPersonalData(NPM,Pembimbing,100,KET)
 		if lengkap:
@@ -88,7 +100,7 @@ class Kepo(object):
 			print(msg)
 			return ''
 	
-	def sudahLengkap(self, NPM, PASSWORD, PROYEK, NILAI, KET, Pembimbing):
+	def sudahLengkap(self, NPM, PASSWORD, PROYEK, NILAI, KET, Pembimbing,userrepo,namarepo,pertemuan):
 		adafoto=self.adaFoto(NPM,PROYEK)
 		if not adafoto:
 			print('Foto Diri Belum Pull Request')
@@ -99,7 +111,13 @@ class Kepo(object):
 		lulusmatakuliah=self.lulusMataKuliah(NPM,PASSWORD,PROYEK)
 		if not lulusmatakuliah:
 			print('Matakuliah prasyarat belum lulus')
-		if adafoto and adaosjur and lulusmatakuliah:
+		kodedosenbenar=self.isKodeDosen(Pembimbing)
+		if not kodedosenbenar:
+			print('Kode Dosen Salah')
+		cukupissues=self.cukupIssues(userrepo,namarepo,pertemuan)
+		if not cukupissues:
+			print('Issues Masih Kurang')
+		if adafoto and adaosjur and kodedosenbenar and cukupissues:
 			return True
 		else:
 			return False
@@ -271,6 +289,23 @@ class Kepo(object):
 				"B": True,
 				"C": True,
 				"D": True
+				}
+		return switcher.get(nilai, False)
+	
+	def isKodeDosen(self, nilai):
+		switcher= {
+				"MYH": True,
+				"RMA": True,
+				"MNF": True,
+				"RHA": True,
+				"RAN": True,
+				"CPY": True,
+				"SFP": True,
+				"MHK": True,
+				"RNS": True,
+				"WIR": True,
+				"NRI": True,
+				"NHH": True
 				}
 		return switcher.get(nilai, False)
 	
