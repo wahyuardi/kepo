@@ -49,7 +49,8 @@ class Kepo(object):
 		self.client_secret = config.client_secret
 
 	def cukupIssues(self,username,reponame,pertemuan):
-		urlgithub=self.urlgithub.replace('USERNAME',username)
+		urlgithub=self.apigithub
+		urlgithub=urlgithub.replace('USERNAME',username)
 		urlgithub=urlgithub.replace('REPONAME',reponame)
 		response = requests.get(urlgithub)
 		json_data = json.loads(response.text)
@@ -85,7 +86,7 @@ class Kepo(object):
 		return dt
 
 	def generateURL(self, NPM, PASSWORD, PROYEK, NILAI, KET, Pembimbing,userrepo,namarepo,pertemuan):
-		lengkap=self.sudahLengkap(NPM, PASSWORD, PROYEK, NILAI, KET, Pembimbing)
+		lengkap=self.sudahLengkap(NPM, PASSWORD, PROYEK, NILAI, KET, Pembimbing,userrepo,namarepo,pertemuan)
 		data=self.getPersonalData(NPM,Pembimbing,100,KET)
 		if lengkap:
 			self.insertLog(data)
