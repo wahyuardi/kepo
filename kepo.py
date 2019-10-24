@@ -9,19 +9,21 @@ import gspread
 from oauth2client.service_account import  ServiceAccountCredentials
 from Crypto.Cipher import AES
 import requests
+import json
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import time
 from datetime import datetime
 
+import config
 
 class Kepo(object):
 	def __init__(self):
-		self.key = "keynya"
-		self.iv = "ivnya"
+		self.key = config.key
+		self.iv = config.iv
 		self.keyuri = "key"
-		self.active_url8 = "https://cobahayo.herokuapp.com/" 
-		self.active_url7 = "https://proyek3d4tiv2.herokuapp.com/"
+		self.active_url8 = "https://cucunguk.herokuapp.com/" 
+		self.active_url7 = "https://proyek3d4ti.herokuapp.com/"
 		self.cdn8 = "https://raw.githubusercontent.com/D4TI/2018/master/kecil/"
 		self.cdn7 = "https://raw.githubusercontent.com/D4TI/2017/master/kecil/"
 		self.ekscdn = ".jpg"
@@ -42,9 +44,22 @@ class Kepo(object):
 		"kode":"TI43233",
 		"semester" : "20181"
 		}
+		self.apigithub = "https://api.github.com/repos/USERNAME/REPONAME/issues?sort=created&direction=desc"
 		self.logname = 'datamahasiswa'
-		self.client_secret = {}
+		self.client_secret = config.client_secret
 
+	def cukupIssues(self,username,reponame,pertemuan):
+		urlgithub=self.apigithub
+		urlgithub=urlgithub.replace('USERNAME',username)
+		urlgithub=urlgithub.replace('REPONAME',reponame)
+		response = requests.get(urlgithub)
+		json_data = json.loads(response.text)
+		jumlah=len(json_data)//10
+		if jumlah >= int(pertemuan):
+			return True
+		else:
+			return False
+		
 	def insertLog(self,data):
 		scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
 		creds = ServiceAccountCredentials.from_json_keyfile_dict(self.client_secret, scope)
@@ -61,15 +76,17 @@ class Kepo(object):
 
 	def makeit16(self,uri):
 		ln = len(uri)
-		sp = 16 - ln - len(str(ln))
+		divln = ln // 16
+		sp = (16+16*divln) - ln - len(str(ln))
+		print(sp)
 		if ln>9:
 			dt = str(ln)+uri+self.random(sp)
 		else:
 			dt = "0"+str(ln)+uri+self.random(sp-1)
 		return dt
 
-	def generateURL(self, NPM, PASSWORD, PROYEK, NILAI, KET, Pembimbing):
-		lengkap=self.sudahLengkap(NPM, PASSWORD, PROYEK, NILAI, KET, Pembimbing)
+	def generateURL(self, NPM, PASSWORD, PROYEK, NILAI, KET, Pembimbing,userrepo,namarepo,pertemuan):
+		lengkap=self.sudahLengkap(NPM, PASSWORD, PROYEK, NILAI, KET, Pembimbing,userrepo,namarepo,pertemuan)
 		data=self.getPersonalData(NPM,Pembimbing,100,KET)
 		if lengkap:
 			self.insertLog(data)
@@ -84,7 +101,7 @@ class Kepo(object):
 			print(msg)
 			return ''
 	
-	def sudahLengkap(self, NPM, PASSWORD, PROYEK, NILAI, KET, Pembimbing):
+	def sudahLengkap(self, NPM, PASSWORD, PROYEK, NILAI, KET, Pembimbing,userrepo,namarepo,pertemuan):
 		adafoto=self.adaFoto(NPM,PROYEK)
 		if not adafoto:
 			print('Foto Diri Belum Pull Request')
@@ -95,7 +112,13 @@ class Kepo(object):
 		lulusmatakuliah=self.lulusMataKuliah(NPM,PASSWORD,PROYEK)
 		if not lulusmatakuliah:
 			print('Matakuliah prasyarat belum lulus')
-		if adafoto and adaosjur and lulusmatakuliah:
+		kodedosenbenar=self.isKodeDosen(Pembimbing)
+		if not kodedosenbenar:
+			print('Kode Dosen Salah')
+		cukupissues=self.cukupIssues(userrepo,namarepo,pertemuan)
+		if not cukupissues:
+			print('Issues Masih Kurang')
+		if adafoto and adaosjur and kodedosenbenar and cukupissues:
 			return True
 		else:
 			return False
@@ -158,7 +181,7 @@ class Kepo(object):
 	def openSiap(self):
 		options = Options()
 		options.headless = True
-		self.driver = webdriver.Chrome(chrome_options=options)
+		self.driver = webdriver.Chrome(options=options)
 		self.driver.get(self.urlsiap)
 
 	def loginSiap(self,NPM,password):
@@ -267,6 +290,23 @@ class Kepo(object):
 				"B": True,
 				"C": True,
 				"D": True
+				}
+		return switcher.get(nilai, False)
+	
+	def isKodeDosen(self, nilai):
+		switcher= {
+				"MYH": True,
+				"RMA": True,
+				"MNF": True,
+				"RHA": True,
+				"RAN": True,
+				"CPY": True,
+				"SFP": True,
+				"MHK": True,
+				"RNS": True,
+				"WIR": True,
+				"NRI": True,
+				"NHH": True
 				}
 		return switcher.get(nilai, False)
 	

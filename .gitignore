@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 kepo.py
+=======
+config.py
+#kepo.py
+>>>>>>> 1101b2215a662d08ee5153038e07bc361d0f9459
 testing.py
 client_secret.json
 *.png
