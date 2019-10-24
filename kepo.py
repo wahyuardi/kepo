@@ -55,7 +55,7 @@ class Kepo(object):
 		response = requests.get(urlgithub)
 		json_data = json.loads(response.text)
 		jumlah=len(json_data)//10
-		if jumlah >= pertemuan:
+		if jumlah >= int(pertemuan):
 			return True
 		else:
 			return False
