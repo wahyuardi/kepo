@@ -43,6 +43,7 @@ class Kepo(object):
 		"kode":"TI43233",
 		"semester" : "20181"
 		}
+		self.apigithub = "https://api.github.com/repos/USERNAME/REPONAME/issues?sort=created&direction=desc"
 		self.logname = 'datamahasiswa'
 		self.client_secret = config.client_secret
 
